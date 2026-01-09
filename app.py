@@ -1,7 +1,6 @@
 """
-Enhanced Donation Form Application with Global Countries Data
-Author: Python Flask Application
-Features: Country-State-City Cascading, Email Notifications, Form Validation
+Enhanced Donation Form Application - Docker Ready
+Features: Environment Variables Support, Production Ready
 """
 
 from flask import Flask, render_template, request, jsonify
@@ -9,6 +8,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import re
+import os
 from datetime import datetime
 
 app = Flask(__name__)
@@ -130,12 +130,12 @@ COUNTRIES_DATA = {
     }
 }
 
-# Email Configuration
+# Email Configuration - Support Environment Variables
 EMAIL_CONFIG = {
-    'sender_email': 'amanpandit4756@gmail.com',
-    'sender_password': 'agyb kiry rorx wroq',
-    'smtp_server': 'smtp.gmail.com',
-    'smtp_port': 465
+    'sender_email': os.getenv('SENDER_EMAIL', 'amanpandit4756@gmail.com'),
+    'sender_password': os.getenv('SENDER_PASSWORD', 'agyb kiry rorx wroq'),
+    'smtp_server': os.getenv('SMTP_SERVER', 'smtp.gmail.com'),
+    'smtp_port': int(os.getenv('SMTP_PORT', 465))
 }
 
 def validate_mobile(mobile):
@@ -311,4 +311,12 @@ def submit_donation():
         return jsonify({'success': False, 'errors': [str(e)]}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Get configuration from environment variables
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', 5000))
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    print(f"Starting Donation Platform on {host}:{port}")
+    print(f"Debug mode: {debug}")
+    
+    app.run(debug=debug, host=host, port=port)
